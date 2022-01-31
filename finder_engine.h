@@ -4,9 +4,6 @@
 #define MAX_THREAD 8
 #define  ROOT = "C:\\";
 
-
-
-
 class thread_pool
 {
 public:
