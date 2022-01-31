@@ -138,7 +138,7 @@ int finder_engine::get_num_thread()
 
 std::string finder_engine::get_path_by_name(std::string const& app_name)
 {
-    const std::vector<std::string> lg_d = ld.getListOfDrives();
+    const std::vector<std::string> lg_d = getListOfDrives();
     std::string path = "NoFound";
     std::vector<std::string> list_root;
 
