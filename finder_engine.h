@@ -3,6 +3,7 @@
 #define COOUNTER = 0;
 #define MAX_THREAD 8
 #define  ROOT = "C:\\";
+namespace fs = std::filesystem;
 
 class thread_pool
 {
