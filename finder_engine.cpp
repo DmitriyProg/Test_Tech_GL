@@ -1,5 +1,78 @@
 #include "finder_engine.h"
 
+thread_pool::thread_pool(const int threads) : shutdown_(false)
+{
+
+    for (int i = 0; i < threads; ++i)
+        threads_.emplace_back(std::bind(&thread_pool::threadEntry, this, i));
+}
+
+thread_pool::~thread_pool()
+{
+
+    {
+
+        std::unique_lock <std::mutex> l(lock_);
+        shutdown_ = true;
+
+    }
+
+    condVar_.notify_all();
+
+    for (auto& thread : threads_)
+        thread.join();
+
+    threads_.clear();
+    stopped_ = true;
+    std::cout << "**************Please Wait******************" << std::endl;
+
+}
+
+void thread_pool::execute(std::function<void()> func)
+{
+    std::unique_lock <std::mutex> l(lock_);
+    jobs_.emplace(std::move(func));
+    condVar_.notify_one();
+}
+
+void thread_pool::threadEntry(int i)
+{
+    std::function <void(void)> job;
+
+    while (true)
+    {
+        {
+            std::unique_lock <std::mutex> l(lock_);
+
+            while (!shutdown_ && jobs_.empty())
+                condVar_.wait(l);
+            if (jobs_.empty())
+            {
+
+                return;
+            }
+
+            job = std::move(jobs_.front());
+            jobs_.pop();
+        }
+
+        job();
+    }
+
+};
+   
+inline std::vector<std::string> getListOfDrives()
+{
+    std::vector<std::string> arrayOfDrives;
+    char* szDrives = new char[MAX_PATH]();
+    if (GetLogicalDriveStringsA(MAX_PATH, szDrives))
+        for (int i = 0; i < 100; i += 4)
+            if (szDrives[i] != static_cast<char>(0))
+                arrayOfDrives.push_back(std::string{ szDrives[i],szDrives[i + 1],szDrives[i + 2] });
+    delete[] szDrives;
+    return arrayOfDrives;
+}
+
 void finder_engine::Finder(std::string const& dir, std::string const& name, std::string& result)
 {
     if (!exit_thread_flag)
@@ -96,6 +169,7 @@ std::string finder_engine::get_path_by_name(std::string const& app_name)
     p->~thread_pool();
 
     //TODO if need check firstly root disk, and after another
+
     /*if(path == "NoFound")
     {
 
