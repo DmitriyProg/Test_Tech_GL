@@ -1,3 +1,3 @@
-# Test_Tech_GL
-For GL BASECAMP C++. 
-Multi-threaded file path search application
+#TechicalTest for Global Logic BaseCamp C++
+#Solution with makefile && g++, follow the link https://github.com/DmitriyProg/GL_TECHICAL_WITH_MAKEFILE.git
+## Multi-threaded file path search application
